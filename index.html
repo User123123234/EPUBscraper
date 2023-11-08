@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Scraping and EPUB Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            color: #007BFF;
+        }
+        form {
+            margin: 20px auto;
+            max-width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f7f7f7;
+        }
+        label, textarea {
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Scraping and EPUB Generator</h1>
+    <form id="generate-form">
+        <label for="book_title">Book Title:</label>
+        <input type="text" id="book_title" required placeholder="Enter your book title"><br>
+        <label for="urls">URLs to Scrape (one per line):</label>
+        <textarea id="urls" rows="10" cols="50" required placeholder="Example URLs:&#10;https://example.com/page1&#10;https://example.com/page2"></textarea><br>
+        <label for="css_selectors">CSS Selectors for Elements to Scrape (one per line):</label>
+        <textarea id="css_selectors" rows="5" cols="50" required placeholder="Example CSS Selectors:&#10;p&#10;h1.entry-title&#10;a"></textarea><br>
+        <input type="submit" value="Generate EPUB">
+    </form>
+
+    <p id="status-message"></p>
+
+    <script>
+        document.getElementById('generate-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const bookTitle = document.getElementById('book_title').value;
+            const urls = document.getElementById('urls').value;
+            const cssSelectors = document.getElementById('css_selectors').value.split('\n');
+            const data = { book_title: bookTitle, urls: urls, css_selectors: cssSelectors };
+
+            fetch('/generate_epub', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data),
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    document.getElementById('status-message').innerText = `EPUB file '${bookTitle}.epub' generated successfully!`;
+                } else {
+                    document.getElementById('status-message').innerText = 'Failed to generate EPUB. Please check the URLs and CSS selectors and try again.';
+                }
+            })
+            .catch(error => {
+                document.getElementById('status-message').innerText = 'An error occurred while generating EPUB. Please try again later.';
+            });
+        });
+    </script>
+</body>
+</html>
